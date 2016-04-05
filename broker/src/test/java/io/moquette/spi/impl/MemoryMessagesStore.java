@@ -121,4 +121,9 @@ public class MemoryMessagesStore implements IMessagesStore {
 			return Collections.EMPTY_LIST;
 		}		
 	}
+
+	@Override
+	public int messageCount() {
+		return m_persistentMessageStore.size();
+	}
 }

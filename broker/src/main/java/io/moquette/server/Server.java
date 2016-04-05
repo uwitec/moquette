@@ -159,4 +159,11 @@ public class Server {
     public void cleanTopic(String topic){
     	m_processor.cleanTopic(topic);
     }
+    /**
+     * return message count
+     * @return
+     */
+    public int messageCount(){
+    	return m_processor.messageCount();
+    }
 }

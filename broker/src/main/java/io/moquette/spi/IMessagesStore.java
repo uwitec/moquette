@@ -143,4 +143,9 @@ public interface IMessagesStore {
      * @return
      */
     List<String> cleanTopic(String topic);
+    /**
+     * return message count
+     * @return
+     */
+    int messageCount();
 }
