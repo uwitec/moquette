@@ -88,10 +88,10 @@ class MapDBMessagesStore implements IMessagesStore {
         messageIdToGuid.put(evt.getMessageID(), guid);
         List<String> gs=m_topic_messageStore.get(evt.getTopic());
         if(gs==null){
-        	gs=new ArrayList<String>();
-        	m_topic_messageStore.put(evt.getTopic(), gs);
+        	gs=new ArrayList<String>();        	
         }
         gs.add(guid);
+        m_topic_messageStore.put(evt.getTopic(), gs);
         return guid;
     }
 
@@ -134,5 +134,10 @@ class MapDBMessagesStore implements IMessagesStore {
 		}else{
 			return Collections.EMPTY_LIST;
 		}		
+	}
+
+	@Override
+	public int messageCount() {
+		return m_persistentMessageStore.size();
 	}
 }

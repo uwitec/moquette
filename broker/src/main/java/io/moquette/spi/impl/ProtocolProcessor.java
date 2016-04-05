@@ -722,4 +722,12 @@ public class ProtocolProcessor {
     public void cleanTopic(String topic){
     	m_sessionsStore.cleanInflightStore(m_messagesStore.cleanTopic(topic));
     }
+    
+    /**
+     * return message count
+     * @return
+     */
+    public int messageCount(){
+    	return m_messagesStore.messageCount();
+    }
 }
