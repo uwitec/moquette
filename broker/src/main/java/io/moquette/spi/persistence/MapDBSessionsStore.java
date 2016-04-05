@@ -270,5 +270,6 @@ class MapDBSessionsStore implements ISessionsStore {
 			mids.removeAll(msgids);
 			m_secondPhaseStore.put(clientID, mids);
 		}
+		m_db.commit();
 	}
 }

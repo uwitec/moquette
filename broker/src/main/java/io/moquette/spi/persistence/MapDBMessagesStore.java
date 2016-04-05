@@ -129,6 +129,7 @@ class MapDBMessagesStore implements IMessagesStore {
 				m_persistentMessageStore.remove(guid);
 			}
 			cleanRetained(topic);
+			m_db.commit();
 			return guids;
 		}else{
 			return Collections.EMPTY_LIST;
