@@ -718,4 +718,8 @@ public class ProtocolProcessor {
         m_interceptor.notifyTopicSubscribed(newSubscription);
         return true;
     }
+    
+    public void cleanTopic(String topic){
+    	m_sessionsStore.cleanInflightStore(m_messagesStore.cleanTopic(topic));
+    }
 }

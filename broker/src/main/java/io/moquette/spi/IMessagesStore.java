@@ -137,4 +137,10 @@ public interface IMessagesStore {
     StoredMessage getMessageByGuid(String guid);
 
     void cleanRetained(String topic);
+    /**
+     *  Clean topic store
+     * @param topic
+     * @return
+     */
+    List<String> cleanTopic(String topic);
 }

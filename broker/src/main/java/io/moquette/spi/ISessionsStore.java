@@ -138,4 +138,9 @@ public interface ISessionsStore {
     void secondPhaseAckWaiting(String clientID, int messageID);
 
     String mapToGuid(String clientID, int messageID);
+    /**
+     * Clean Inflight Store
+     * @param guids
+     */
+    void cleanInflightStore(List<String> guids);
 }

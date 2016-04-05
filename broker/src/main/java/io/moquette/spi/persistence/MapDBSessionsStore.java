@@ -237,4 +237,38 @@ class MapDBSessionsStore implements ISessionsStore {
     static String messageId2GuidsMapName(String clientID) {
         return "guidsMapping_" + clientID;
     }
+
+	@Override
+	public void cleanInflightStore(List<String> guids) {
+		List<Integer> msgids=new ArrayList<Integer>();
+		for(String clientID:m_inflightStore.keySet()){
+			Map<Integer, String> m = this.m_inflightStore.get(clientID);
+			if (m != null) {
+	        	for(Integer messageID:m.keySet()){
+	        		String guid=m.get(messageID);
+	        		if(guids.contains(guid)){
+	        			m.remove(messageID);
+	        			//remove from the ids store
+				        Set<Integer> inFlightForClient = this.m_inFlightIds.get(clientID);
+				        if (inFlightForClient != null) {
+				            inFlightForClient.remove(messageID);
+				        }
+	        			msgids.add(messageID);		        			
+	        		}
+	        	}
+		   }
+		}
+		for(String clientID:m_enqueuedStore.keySet()){
+			List<String> gs=m_enqueuedStore.get(clientID);
+			if(gs!=null){
+				gs.removeAll(guids);
+				m_enqueuedStore.put(clientID, gs);
+			}
+		}
+		for(String clientID:m_secondPhaseStore.keySet()){
+			Set<Integer> mids=m_secondPhaseStore.get(clientID);
+			mids.removeAll(msgids);
+			m_secondPhaseStore.put(clientID, mids);
+		}
+	}
 }

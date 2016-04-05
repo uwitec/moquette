@@ -30,7 +30,7 @@ import static io.moquette.spi.impl.Utils.defaultGet;
 public class MemoryMessagesStore implements IMessagesStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(MemoryMessagesStore.class);
-
+    private Map<String,List<String>> m_topic_messageStore = new HashMap<>();
     private Map<String, String> m_retainedStore = new HashMap<>();
     private Map<String, StoredMessage> m_persistentMessageStore = new HashMap<>();
     private Map<String, Map<Integer, String>> m_messageToGuids;
@@ -74,6 +74,12 @@ public class MemoryMessagesStore implements IMessagesStore {
         HashMap<Integer, String> guids = (HashMap<Integer, String>) defaultGet(m_messageToGuids,
                 evt.getClientID(), new HashMap<Integer, String>());
         guids.put(evt.getMessageID(), guid);
+        List<String> gs=m_topic_messageStore.get(evt.getTopic());
+        if(gs==null){
+        	gs=new ArrayList<String>();
+        	m_topic_messageStore.put(evt.getTopic(), gs);
+        }
+        gs.add(guid);
         return guid;
     }
 
@@ -100,4 +106,19 @@ public class MemoryMessagesStore implements IMessagesStore {
     public void cleanRetained(String topic) {
         m_retainedStore.remove(topic);
     }
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> cleanTopic(String topic) {
+		List<String> guids=m_topic_messageStore.get(topic);
+		if(guids!=null){
+			for(String guid:guids){
+				m_persistentMessageStore.remove(guid);
+			}
+			cleanRetained(topic);
+			return guids;
+		}else{
+			return Collections.EMPTY_LIST;
+		}		
+	}
 }

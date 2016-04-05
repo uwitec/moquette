@@ -6,7 +6,7 @@
         <relativePath>../</relativePath>
         <artifactId>moquette-parent</artifactId>
         <groupId>io.moquette</groupId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.9.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>moquette-broker</artifactId>
@@ -173,10 +173,12 @@
         </plugins>
     </build>
 
-    <distributionManagement>
-        <repository>
-            <id>bintray</id>
-            <url>https://api.bintray.com/maven/${bintray.repo}/${bintray.package}</url>
-        </repository>
-    </distributionManagement>
+	<distributionManagement>
+		<repository>
+			<id>nexus</id>
+			<name>Team Nexus Release Repository</name>
+			<url>http://123.56.120.131:8888/nexus/content/repositories/xingyun-repo-snapshot</url>
+			<uniqueVersion>false</uniqueVersion>
+		</repository>
+	</distributionManagement>
 </project>

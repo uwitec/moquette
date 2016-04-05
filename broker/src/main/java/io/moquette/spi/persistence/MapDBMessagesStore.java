@@ -34,7 +34,8 @@ class MapDBMessagesStore implements IMessagesStore {
     private static final Logger LOG = LoggerFactory.getLogger(MapDBMessagesStore.class);
 
     private DB m_db;
-
+    //maps topic -> guids
+    private Map<String,List<String>> m_topic_messageStore;
     //maps clientID -> guid
     private ConcurrentMap<String, String> m_retainedStore;
     //maps guid to message, it's message store
@@ -47,6 +48,7 @@ class MapDBMessagesStore implements IMessagesStore {
 
     @Override
     public void initStore() {
+    	m_topic_messageStore = m_db.getHashMap("topicMessageIds");
         m_retainedStore = m_db.getHashMap("retained");
         m_persistentMessageStore = m_db.getHashMap("persistedMessages");
     }
@@ -84,6 +86,12 @@ class MapDBMessagesStore implements IMessagesStore {
         m_persistentMessageStore.put(guid, evt);
         ConcurrentMap<Integer, String> messageIdToGuid = m_db.getHashMap(MapDBSessionsStore.messageId2GuidsMapName(evt.getClientID()));
         messageIdToGuid.put(evt.getMessageID(), guid);
+        List<String> gs=m_topic_messageStore.get(evt.getTopic());
+        if(gs==null){
+        	gs=new ArrayList<String>();
+        	m_topic_messageStore.put(evt.getTopic(), gs);
+        }
+        gs.add(guid);
         return guid;
     }
 
@@ -111,4 +119,19 @@ class MapDBMessagesStore implements IMessagesStore {
     public void cleanRetained(String topic) {
         m_retainedStore.remove(topic);
     }
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<String> cleanTopic(String topic) {
+		List<String> guids=m_topic_messageStore.get(topic);
+		if(guids!=null){
+			for(String guid:guids){
+				m_persistentMessageStore.remove(guid);
+			}
+			cleanRetained(topic);
+			return guids;
+		}else{
+			return Collections.EMPTY_LIST;
+		}		
+	}
 }

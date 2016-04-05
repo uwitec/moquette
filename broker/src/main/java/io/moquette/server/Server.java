@@ -155,4 +155,8 @@ public class Server {
         m_initialized = false;
         LOG.info("Server stopped");
     }
+    
+    public void cleanTopic(String topic){
+    	m_processor.cleanTopic(topic);
+    }
 }
