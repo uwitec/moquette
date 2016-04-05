@@ -267,8 +267,10 @@ class MapDBSessionsStore implements ISessionsStore {
 		}
 		for(String clientID:m_secondPhaseStore.keySet()){
 			Set<Integer> mids=m_secondPhaseStore.get(clientID);
-			mids.removeAll(msgids);
-			m_secondPhaseStore.put(clientID, mids);
+			if(mids!=null){
+				mids.removeAll(msgids);
+				m_secondPhaseStore.put(clientID, mids);
+			}
 		}
 		m_db.commit();
 	}
