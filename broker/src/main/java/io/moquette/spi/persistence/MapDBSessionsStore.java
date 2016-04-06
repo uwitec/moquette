@@ -240,23 +240,37 @@ class MapDBSessionsStore implements ISessionsStore {
 
 	@Override
 	public void cleanInflightStore(List<String> guids) {
-		List<Integer> msgids=new ArrayList<Integer>();
+		Map<String,List<Integer>> toBeRemoved=new HashMap<String, List<Integer>>();		
+		List<Integer> toBeRemovedMsgids=new ArrayList<Integer>();
 		for(String clientID:m_inflightStore.keySet()){
 			Map<Integer, String> m = this.m_inflightStore.get(clientID);
 			if (m != null) {
 	        	for(Integer messageID:m.keySet()){
 	        		String guid=m.get(messageID);
-	        		if(guids.contains(guid)){
-	        			m.remove(messageID);
-	        			//remove from the ids store
-				        Set<Integer> inFlightForClient = this.m_inFlightIds.get(clientID);
-				        if (inFlightForClient != null) {
-				            inFlightForClient.remove(messageID);
-				        }
-	        			msgids.add(messageID);		        			
+	        		if(guids.contains(guid)){	
+	        			List<Integer> ids=toBeRemoved.get(clientID);
+	        			if(ids==null){
+	        				ids=new ArrayList<Integer>();
+	        			}
+	        			ids.add(messageID);
+	        			toBeRemoved.put(clientID, ids);	        			
+				        toBeRemovedMsgids.add(messageID);		        			
 	        		}
 	        	}
 		   }
+		}
+		for(String clientID:toBeRemoved.keySet()){
+			List<Integer> ids=toBeRemoved.get(clientID);
+			Map<Integer, String> m = this.m_inflightStore.get(clientID);
+			if (m != null) {
+				for(Integer id:ids){
+					m.remove(id);
+				}
+			}
+			Set<Integer> inFlightForClient = this.m_inFlightIds.get(clientID);
+	        if (inFlightForClient != null) {
+	            inFlightForClient.removeAll(ids);
+	        }
 		}
 		for(String clientID:m_enqueuedStore.keySet()){
 			List<String> gs=m_enqueuedStore.get(clientID);
@@ -268,7 +282,7 @@ class MapDBSessionsStore implements ISessionsStore {
 		for(String clientID:m_secondPhaseStore.keySet()){
 			Set<Integer> mids=m_secondPhaseStore.get(clientID);
 			if(mids!=null){
-				mids.removeAll(msgids);
+				mids.removeAll(toBeRemovedMsgids);
 				m_secondPhaseStore.put(clientID, mids);
 			}
 		}
