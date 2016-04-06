@@ -138,6 +138,6 @@ class MapDBMessagesStore implements IMessagesStore {
 
 	@Override
 	public int messageCount() {
-		return m_persistentMessageStore.size();
+		return m_persistentMessageStore.keySet().size();
 	}
 }
