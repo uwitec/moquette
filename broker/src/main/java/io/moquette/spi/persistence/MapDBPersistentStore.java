@@ -18,6 +18,7 @@ package io.moquette.spi.persistence;
 
 import io.moquette.server.config.IConfig;
 import io.moquette.spi.IMessagesStore;
+import io.moquette.spi.IPersistentStore;
 import io.moquette.spi.ISessionsStore;
 import io.moquette.parser.proto.MQTTException;
 import org.mapdb.DB;
@@ -27,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -38,31 +38,17 @@ import static io.moquette.BrokerConstants.AUTOSAVE_INTERVAL_PROPERTY_NAME;
 /**
  * MapDB main persistence implementation
  */
-public class MapDBPersistentStore {
-
-    /**
-     * This is a DTO used to persist minimal status (clean session and activation status) of
-     * a session.
-     * */
-    public static class PersistentSession implements Serializable {
-        public final boolean cleanSession;
-
-        public PersistentSession(boolean cleanSession) {
-            this.cleanSession = cleanSession;
-        }
-    }
+public class MapDBPersistentStore implements IPersistentStore{
 
     private static final Logger LOG = LoggerFactory.getLogger(MapDBPersistentStore.class);
 
     private DB m_db;
-    private final String m_storePath;
-    private final int m_autosaveInterval; // in seconds
+    private String m_storePath;
+    private int m_autosaveInterval; // in seconds
 
     protected final ScheduledExecutorService m_scheduler = Executors.newScheduledThreadPool(1);
 
-    public MapDBPersistentStore(IConfig props) {
-        this.m_storePath = props.getProperty(PERSISTENT_STORE_PROPERTY_NAME, "");
-        this.m_autosaveInterval = Integer.parseInt(props.getProperty(AUTOSAVE_INTERVAL_PROPERTY_NAME, "30"));
+    public MapDBPersistentStore() {        
     }
 
     /**
@@ -81,7 +67,9 @@ public class MapDBPersistentStore {
         return sessionsStore;
     }
     
-    public void initStore() {
+    public void initStore(IConfig props) {
+    	this.m_storePath = props.getProperty(PERSISTENT_STORE_PROPERTY_NAME, "");
+        this.m_autosaveInterval = Integer.parseInt(props.getProperty(AUTOSAVE_INTERVAL_PROPERTY_NAME, "30"));
         if (m_storePath == null || m_storePath.isEmpty()) {
             m_db = DBMaker.newMemoryDB().make();
         } else {

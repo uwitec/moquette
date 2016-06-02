@@ -51,8 +51,8 @@ public class MapDBPersistentStoreTest {
         Properties props = new Properties();
         props.setProperty(BrokerConstants.PERSISTENT_STORE_PROPERTY_NAME, BrokerConstants.DEFAULT_PERSISTENT_PATH);
         IConfig conf = new MemoryConfig(props);
-        m_storageService = new MapDBPersistentStore(conf);
-        m_storageService.initStore();
+        m_storageService = new MapDBPersistentStore();
+        m_storageService.initStore(conf);
         m_messagesStore = m_storageService.messagesStore();
         m_sessionsStore = m_storageService.sessionsStore(m_messagesStore);
     }

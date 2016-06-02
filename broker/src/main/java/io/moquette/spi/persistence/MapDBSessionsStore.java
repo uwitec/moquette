@@ -20,7 +20,7 @@ import io.moquette.spi.IMessagesStore;
 import io.moquette.spi.ISessionsStore;
 import io.moquette.spi.impl.Utils;
 import io.moquette.spi.impl.subscriptions.Subscription;
-import io.moquette.spi.persistence.MapDBPersistentStore.PersistentSession;
+import io.moquette.spi.IPersistentStore.PersistentSession;
 import org.mapdb.DB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

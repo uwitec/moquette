@@ -17,6 +17,7 @@ package io.moquette.spi.impl;
 
 import io.moquette.BrokerConstants;
 import io.moquette.spi.IMessagesStore;
+import io.moquette.spi.IPersistentStore;
 import io.moquette.interception.InterceptHandler;
 import io.moquette.server.config.IConfig;
 import io.moquette.spi.ISessionsStore;
@@ -49,7 +50,7 @@ public class SimpleMessaging {
 
     private SubscriptionsStore subscriptions;
 
-    private MapDBPersistentStore m_mapStorage;
+    private IPersistentStore m_mapStorage;
 
     private BrokerInterceptor m_interceptor;
 
@@ -78,12 +79,32 @@ public class SimpleMessaging {
      * @param authorizator an implementation of the authorizator to be used, if null load that specified in config
      *                      and fallback on the default one (permit all).
      * */
-    public ProtocolProcessor init(IConfig props, List<? extends InterceptHandler> embeddedObservers,
+    @SuppressWarnings("rawtypes")
+	public ProtocolProcessor init(IConfig props, List<? extends InterceptHandler> embeddedObservers,
                                   IAuthenticator authenticator, IAuthorizator authorizator) {
-        subscriptions = new SubscriptionsStore();
 
-        m_mapStorage = new MapDBPersistentStore(props);
-        m_mapStorage.initStore();
+       
+        subscriptions = new SubscriptionsStore();
+        String persistentStoreType=props.getProperty(BrokerConstants.PERSISTENTE_STORE_TYPE);
+        if(persistentStoreType==null){
+        	persistentStoreType=BrokerConstants.DEFAULT_PERSISTENTE_STORE_TYPE;
+        }
+        LOG.info("Persistent store type: " + persistentStoreType);
+        Class persistentStoreClass=null;
+        try {
+			persistentStoreClass = Class.forName(persistentStoreType);
+			m_mapStorage =(IPersistentStore) persistentStoreClass.newInstance();
+		} catch (ClassNotFoundException e) {
+			LOG.error("Can't find persistent store class {}", e);
+		} catch (InstantiationException e) {
+			LOG.error("Can't create persistent store {}", e);
+		} catch (IllegalAccessException e) {
+			LOG.error("Can't create persistent store {}", e);
+		} 
+        if(persistentStoreClass==null || m_mapStorage == null){
+        	m_mapStorage = new MapDBPersistentStore();
+        }
+        m_mapStorage.initStore(props);
         IMessagesStore messagesStore = m_mapStorage.messagesStore();
         ISessionsStore sessionsStore = m_mapStorage.sessionsStore(messagesStore);
 

@@ -15,26 +15,26 @@
  */
 package io.moquette.server;
 
-import io.moquette.BrokerConstants;
 import io.moquette.interception.InterceptHandler;
 import io.moquette.parser.proto.messages.PublishMessage;
-import io.moquette.server.config.MemoryConfig;
-import io.moquette.spi.impl.SimpleMessaging;
 import io.moquette.server.config.FilesystemConfig;
 import io.moquette.server.config.IConfig;
+import io.moquette.server.config.MemoryConfig;
 import io.moquette.server.netty.NettyAcceptor;
 import io.moquette.spi.impl.ProtocolProcessor;
+import io.moquette.spi.impl.SimpleMessaging;
 import io.moquette.spi.security.IAuthenticator;
 import io.moquette.spi.security.IAuthorizator;
 import io.moquette.spi.security.ISslContextCreator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Launch a  configured version of the server.
@@ -121,7 +121,6 @@ public class Server {
         if (handlerProp != null) {
             config.setProperty("intercept.handler", handlerProp);
         }
-        LOG.info("Persistent store file: " + config.getProperty(BrokerConstants.PERSISTENT_STORE_PROPERTY_NAME));
         final ProtocolProcessor processor = SimpleMessaging.getInstance().init(config, handlers, authenticator, authorizator);
 
         if (sslCtxCreator == null) {
