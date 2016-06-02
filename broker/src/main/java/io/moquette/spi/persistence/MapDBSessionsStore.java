@@ -18,9 +18,9 @@ package io.moquette.spi.persistence;
 import io.moquette.spi.ClientSession;
 import io.moquette.spi.IMessagesStore;
 import io.moquette.spi.ISessionsStore;
+import io.moquette.spi.PersistentSession;
 import io.moquette.spi.impl.Utils;
 import io.moquette.spi.impl.subscriptions.Subscription;
-import io.moquette.spi.IPersistentStore.PersistentSession;
 import org.mapdb.DB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,7 +145,7 @@ class MapDBSessionsStore implements ISessionsStore {
 
     @Override
     public void updateCleanStatus(String clientID, boolean cleanSession) {
-        m_persistentSessions.put(clientID, new MapDBPersistentStore.PersistentSession(cleanSession));
+        m_persistentSessions.put(clientID, new PersistentSession(cleanSession));
     }
 
     /**

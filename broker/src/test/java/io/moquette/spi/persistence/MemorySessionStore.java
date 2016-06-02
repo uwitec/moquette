@@ -18,6 +18,7 @@ package io.moquette.spi.persistence;
 import io.moquette.spi.ClientSession;
 import io.moquette.spi.IMessagesStore;
 import io.moquette.spi.ISessionsStore;
+import io.moquette.spi.PersistentSession;
 import io.moquette.spi.impl.Utils;
 import io.moquette.spi.impl.subscriptions.Subscription;
 
@@ -35,7 +36,7 @@ public class MemorySessionStore implements ISessionsStore {
 
     private Map<String, Set<Subscription>> m_persistentSubscriptions = new HashMap<>();
 
-    private Map<String, MapDBPersistentStore.PersistentSession> m_persistentSessions = new HashMap<>();
+    private Map<String, PersistentSession> m_persistentSessions = new HashMap<>();
 
     //maps clientID->[MessageId -> guid]
     private Map<String, Map<Integer, String>> m_inflightStore = new HashMap<>();
@@ -111,7 +112,7 @@ public class MemorySessionStore implements ISessionsStore {
         }
         LOG.debug("clientID {} is a newcome, creating it's empty subscriptions set", clientID);
         m_persistentSubscriptions.put(clientID, new HashSet<Subscription>());
-        m_persistentSessions.put(clientID, new MapDBPersistentStore.PersistentSession(cleanSession));
+        m_persistentSessions.put(clientID, new PersistentSession(cleanSession));
         return new ClientSession(clientID, m_messagesStore, this, cleanSession);
     }
 
@@ -121,13 +122,13 @@ public class MemorySessionStore implements ISessionsStore {
             return null;
         }
 
-        MapDBPersistentStore.PersistentSession storedSession = m_persistentSessions.get(clientID);
+        PersistentSession storedSession = m_persistentSessions.get(clientID);
         return new ClientSession(clientID, m_messagesStore, this, storedSession.cleanSession);
     }
 
     @Override
     public void updateCleanStatus(String clientID, boolean cleanSession) {
-        m_persistentSessions.put(clientID, new MapDBPersistentStore.PersistentSession(cleanSession));
+        m_persistentSessions.put(clientID, new PersistentSession(cleanSession));
     }
 
     @Override
