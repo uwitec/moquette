@@ -17,6 +17,7 @@ package io.moquette.spi.persistence;
 
 import io.moquette.spi.ClientSession;
 import io.moquette.spi.IMessagesStore;
+import io.moquette.spi.IMessagesStore.StoredMessage;
 import io.moquette.spi.ISessionsStore;
 import io.moquette.spi.PersistentSession;
 import io.moquette.spi.impl.Utils;
@@ -262,5 +263,11 @@ public class MemorySessionStore implements ISessionsStore {
 			m_secondPhaseStore.put(clientID, mids);
 		}
 		
+	}
+
+	@Override
+	public StoredMessage getInflightMessage(String clientID, int messageID) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

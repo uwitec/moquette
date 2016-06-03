@@ -15,8 +15,21 @@
 
     <packaging>pom</packaging>
     <version>0.9.1-SNAPSHOT</version>
-    <name>Moquette MQTT parent</name>
+    <name>Moquette MQTT</name>
+    <description>Moquette lightweight MQTT Broker</description>
+    <inceptionYear>2011</inceptionYear>
     <url>https://github.com/andsel/moquette/</url>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+        <license>
+            <name>Eclipse Public License - Version 1.0</name>
+            <url>http://www.eclipse.org/org/documents/epl-v10.php</url>
+        </license>
+    </licenses>
 
     <developers>
         <developer>
@@ -49,6 +62,12 @@
             <url>https://github.com/wagnerluis1982</url>
         </contributor>
     </contributors>
+
+    <scm>
+        <connection>scm:git:git@github.com:andsel/moquette.git</connection>
+        <developerConnection>scm:git:git@github.com:andsel/moquette.git</developerConnection>
+        <url>git@github.com:andsel/moquette.git</url>
+    </scm>
 
     <modules>
         <module>netty_parser</module>

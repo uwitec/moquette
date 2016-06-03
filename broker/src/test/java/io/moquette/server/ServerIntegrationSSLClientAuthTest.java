@@ -39,8 +39,7 @@ import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttClientPersistence;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 import org.junit.After;
 import org.junit.Before;
@@ -50,12 +49,48 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Check that Moquette could also handle SSL.
+ * Check that Moquette could also handle SSL with client authentification.
  * 
- * @author andrea
+ * <p>
+ * Create certificates needed for client authentification
+ * <pre>
+ * # generate server certificate chain (valid for 10000 days)
+ * keytool -genkeypair -alias signedtestserver -dname cn=moquette.eclipse.org -keyalg RSA -keysize 2048 -keystore signedserverkeystore.jks -keypass passw0rdsrv -storepass passw0rdsrv -validity 10000 
+ * keytool -genkeypair -alias signedtestserver_sub -dname cn=moquette.eclipse.org -keyalg RSA -keysize 2048 -keystore signedserverkeystore.jks -keypass passw0rdsrv -storepass passw0rdsrv
+ * 
+ * # sign server subcertificate with server certificate (valid for 10000 days) 
+ * keytool -certreq -alias signedtestserver_sub -keystore signedserverkeystore.jks -keypass passw0rdsrv -storepass passw0rdsrv | \
+ * 	keytool -gencert -alias signedtestserver -keystore signedserverkeystore.jks -keypass passw0rdsrv -storepass passw0rdsrv -validity 10000 | \
+ * 	keytool -importcert -alias signedtestserver_sub -keystore signedserverkeystore.jks -keypass passw0rdsrv -storepass passw0rdsrv
+ * 
+ * # generate client keypair
+ * keytool -genkeypair -alias signedtestclient -dname cn=moquette.eclipse.org -keyalg RSA -keysize 2048 -keystore signedclientkeystore.jks -keypass passw0rd -storepass passw0rd
+ * 
+ * # create signed client certificate with server subcertificate and import to client keystore (valid for 10000 days) 
+ * keytool -certreq -alias signedtestclient -keystore signedclientkeystore.jks -keypass passw0rd -storepass passw0rd | \
+ *  keytool -gencert -alias signedtestserver_sub -keystore signedserverkeystore.jks -keypass passw0rdsrv -storepass passw0rdsrv -validity 10000 | \
+ *  keytool -importcert -alias signedtestclient -keystore signedclientkeystore.jks -keypass passw0rd -storepass passw0rd -noprompt
+ * 
+ * # import server certificates into signed truststore
+ * keytool -exportcert -alias signedtestserver -keystore signedserverkeystore.jks -keypass passw0rdsrv -storepass passw0rdsrv | \
+ *  keytool -importcert -trustcacerts -noprompt -alias signedtestserver -keystore signedclientkeystore.jks -keypass passw0rd -storepass passw0rd
+ * keytool -exportcert -alias signedtestserver_sub -keystore signedserverkeystore.jks -keypass passw0rdsrv -storepass passw0rdsrv | \
+ *  keytool -importcert -trustcacerts -noprompt -alias signedtestserver_sub -keystore signedclientkeystore.jks -keypass passw0rd -storepass passw0rd
+ * 
+ * # create unsigned client certificate (valid for 10000 days)
+ * keytool -genkeypair -alias unsignedtestclient -dname cn=moquette.eclipse.org -validity 10000 -keyalg RSA -keysize 2048 -keystore unsignedclientkeystore.jks -keypass passw0rd -storepass passw0rd
+ * 
+ * # import server certificates into unsigned truststore
+ * keytool -exportcert -alias signedtestserver -keystore signedserverkeystore.jks -keypass passw0rdsrv -storepass passw0rdsrv | \
+ *  keytool -importcert -trustcacerts -noprompt -alias signedtestserver -keystore unsignedclientkeystore.jks -keypass passw0rd -storepass passw0rd
+ * keytool -exportcert -alias signedtestserver_sub -keystore signedserverkeystore.jks -keypass passw0rdsrv -storepass passw0rdsrv | \
+ *  keytool -importcert -trustcacerts -noprompt -alias signedtestserver_sub -keystore unsignedclientkeystore.jks -keypass passw0rd -storepass passw0rd
+ * </pre>
+ * </p>
+ * @author andrea / konradm
  */
-public class ServerIntegrationSSLTest {
-    private static final Logger LOG = LoggerFactory.getLogger(ServerIntegrationSSLTest.class);
+public class ServerIntegrationSSLClientAuthTest {
+    private static final Logger LOG = LoggerFactory.getLogger(ServerIntegrationSSLClientAuthTest.class);
 
     Server m_server;
     static MqttClientPersistence s_dataStore;
@@ -76,10 +111,11 @@ public class ServerIntegrationSSLTest {
 
         Properties sslProps = new Properties();
         sslProps.put(BrokerConstants.SSL_PORT_PROPERTY_NAME, "8883");
-        sslProps.put(BrokerConstants.JKS_PATH_PROPERTY_NAME, "serverkeystore.jks");
+        sslProps.put(BrokerConstants.JKS_PATH_PROPERTY_NAME, "signedserverkeystore.jks");
         sslProps.put(BrokerConstants.KEY_STORE_PASSWORD_PROPERTY_NAME, "passw0rdsrv");
         sslProps.put(BrokerConstants.KEY_MANAGER_PASSWORD_PROPERTY_NAME, "passw0rdsrv");
         sslProps.put(BrokerConstants.PERSISTENT_STORE_PROPERTY_NAME, IntegrationUtils.localMapDBPath());
+        sslProps.put(BrokerConstants.NEED_CLIENT_AUTH, "true");
         m_server.startServer(sslProps);
     }
 
@@ -116,9 +152,9 @@ public class ServerIntegrationSSLTest {
     }
     
     @Test
-    public void checkSupportSSL() throws Exception {
-        LOG.info("*** checkSupportSSL ***");
-        SSLSocketFactory ssf = configureSSLSocketFactory();
+    public void checkClientAuthentification() throws Exception {
+        LOG.info("*** checkClientAuthentification ***");
+        SSLSocketFactory ssf = configureSSLSocketFactory("signedclientkeystore.jks");
         
         MqttConnectOptions options = new MqttConnectOptions();
         options.setSocketFactory(ssf);
@@ -127,44 +163,26 @@ public class ServerIntegrationSSLTest {
         m_client.disconnect();
     }
 
-    @Test
-    public void checkSupportSSLForMultipleClient() throws Exception {
-        LOG.info("*** checkSupportSSLForMultipleClient ***");
-        SSLSocketFactory ssf = configureSSLSocketFactory();
+    @Test (expected = MqttException.class)
+    public void checkClientAuthentificationFail() throws Exception {
+        LOG.info("*** checkClientAuthentificationFail ***");
+        SSLSocketFactory ssf = configureSSLSocketFactory("unsignedclientkeystore.jks");
         
         MqttConnectOptions options = new MqttConnectOptions();
         options.setSocketFactory(ssf);
+        // actual a "Broken pipe" is thrown, this is not very specific.
+        try {
         m_client.connect(options);
-        m_client.subscribe("/topic", 0);
-        
-        MqttClient secondClient = new MqttClient("ssl://localhost:8883", "secondTestClient", new MemoryPersistence());
-        MqttConnectOptions secondClientOptions = new MqttConnectOptions();
-        secondClientOptions.setSocketFactory(ssf);
-        secondClient.connect(secondClientOptions);
-        secondClient.publish("/topic", new MqttMessage("message".getBytes()));
-        secondClient.disconnect();
-        
-        m_client.disconnect();
+        }catch(MqttException e)
+        {
+        	e.printStackTrace();
+        	throw e;
+        }
     }
-    /**
-     * keystore generated into test/resources with command:
-     * 
-     * keytool -keystore clientkeystore.jks -alias testclient -genkey -keyalg RSA
-     * -> mandatory to put the name surname
-     * -> password is passw0rd
-     * -> type yes at the end
-     * 
-     * to generate the crt file from the keystore
-     * -- keytool -certreq -alias testclient -keystore clientkeystore.jks -file testclient.csr
-     * 
-     * keytool -export -alias testclient -keystore clientkeystore.jks -file testclient.crt
-     * 
-     * to import an existing certificate:
-     * keytool -keystore clientkeystore.jks -import -alias testclient -file testclient.crt -trustcacerts
-     */
-    private SSLSocketFactory configureSSLSocketFactory() throws KeyManagementException, NoSuchAlgorithmException, UnrecoverableKeyException, IOException, CertificateException, KeyStoreException {
+
+    private SSLSocketFactory configureSSLSocketFactory(String keystore) throws KeyManagementException, NoSuchAlgorithmException, UnrecoverableKeyException, IOException, CertificateException, KeyStoreException {
         KeyStore ks = KeyStore.getInstance("JKS");
-        InputStream jksInputStream = getClass().getClassLoader().getResourceAsStream("clientkeystore.jks");
+        InputStream jksInputStream = getClass().getClassLoader().getResourceAsStream(keystore);
         ks.load(jksInputStream, "passw0rd".toCharArray());
 
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
