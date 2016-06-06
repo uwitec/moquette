@@ -19,10 +19,10 @@ import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
+//import java.util.concurrent.TimeUnit;
 
 import io.moquette.server.ConnectionDescriptor;
-import io.moquette.server.netty.AutoFlushHandler;
+//import io.moquette.server.netty.AutoFlushHandler;
 import io.moquette.server.netty.NettyUtils;
 import io.moquette.spi.ClientSession;
 import io.moquette.spi.IMatchingCondition;
@@ -243,20 +243,20 @@ public class ProtocolProcessor {
             //force the republish of stored QoS1 and QoS2
             republishStoredInSession(clientSession);
         }
-        int flushIntervalMs = 500/*(keepAlive * 1000) / 2*/;
-        setupAutoFlusher(channel.pipeline(), flushIntervalMs);
+//        int flushIntervalMs = 500/*(keepAlive * 1000) / 2*/;
+//        setupAutoFlusher(channel.pipeline(), flushIntervalMs);
         LOG.info("CONNECT processed");
     }
 
-    private void setupAutoFlusher(ChannelPipeline pipeline, int flushIntervalMs) {
-        AutoFlushHandler autoFlushHandler = new AutoFlushHandler(flushIntervalMs, TimeUnit.MILLISECONDS);
-        try {
-            pipeline.addAfter("idleEventHandler", "autoFlusher", autoFlushHandler);
-        } catch (NoSuchElementException nseex) {
-            //the idleEventHandler is not present on the pipeline
-            pipeline.addFirst("autoFlusher", autoFlushHandler);
-        }
-    }
+//    private void setupAutoFlusher(ChannelPipeline pipeline, int flushIntervalMs) {
+//        AutoFlushHandler autoFlushHandler = new AutoFlushHandler(flushIntervalMs, TimeUnit.MILLISECONDS);
+//        try {
+//            pipeline.addAfter("idleEventHandler", "autoFlusher", autoFlushHandler);
+//        } catch (NoSuchElementException nseex) {
+//            //the idleEventHandler is not present on the pipeline
+//            pipeline.addFirst("autoFlusher", autoFlushHandler);
+//        }
+//    }
 
     private void setIdleTime(ChannelPipeline pipeline, int idleTime) {
         if (pipeline.names().contains("idleStateHandler")) {
