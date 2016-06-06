@@ -518,13 +518,14 @@ public class ProtocolProcessor {
         }
         Channel channel = m_clientIDs.get(clientId).channel;
         LOG.trace("Session for clientId {}", clientId);
-        if (channel.isWritable()) {
-            //if channel is writable don't enqueue
-            channel.write(pubMessage);
-        } else {
-            //enqueue to the client session
-            clientsession.enqueue(pubMessage);
-        }
+        channel.writeAndFlush(pubMessage);
+//        if (channel.isWritable()) {
+//            //if channel is writable don't enqueue
+//            channel.write(pubMessage);
+//        } else {
+//            //enqueue to the client session
+//            clientsession.enqueue(pubMessage);
+//        }
     }
 
     private void sendPubRec(String clientID, int messageID) {
