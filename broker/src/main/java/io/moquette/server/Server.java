@@ -165,4 +165,7 @@ public class Server {
     public int messageCount(){
     	return m_processor.messageCount();
     }
+    public void internalUnsubscribe(String topic,String clientID){
+    	m_processor.internalUnsubscribe(topic, clientID);
+    }
 }

@@ -789,4 +789,18 @@ public class ProtocolProcessor {
     public int messageCount(){
     	return m_messagesStore.messageCount();
     }
+    
+    public void internalUnsubscribe(String topic,String clientID){
+    	ClientSession clientSession = m_sessionsStore.sessionForClient(clientID);
+    	if(clientSession!=null){
+	        verifyToActivate(clientID, clientSession);
+	        boolean validTopic = SubscriptionsStore.validate(topic);
+	        if (!validTopic) {
+	            LOG.warn("UNSUBSCRIBE found an invalid topic filter <{}> for clientID <{}>", topic, clientID);
+	            return;
+	        }	        
+	        clientSession.unsubscribeFrom(topic);
+    	}
+    	subscriptions.removeSubscription(topic, clientID);
+    }
 }
