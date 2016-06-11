@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,8 @@ import org.slf4j.LoggerFactory;
  * @author andrea
  */
 public class Server {
-    
+    public static String ID=UUID.randomUUID().toString();
+	
     private static final Logger LOG = LoggerFactory.getLogger(Server.class);
     
     private ServerAcceptor m_acceptor;
@@ -165,7 +167,12 @@ public class Server {
     public int messageCount(){
     	return m_processor.messageCount();
     }
-    public void internalUnsubscribe(String topic,String clientID){
-    	m_processor.internalUnsubscribe(topic, clientID);
+    public void cleanSubscriptionForOtherServer(String serverID,String clientID){
+    	if(!ID.equals(serverID)){
+    		m_processor.cleanSubscription(clientID);
+    	}    	
+    }
+    public void cleanSubscription(String clientID){
+    	m_processor.cleanSubscription(clientID);
     }
 }
