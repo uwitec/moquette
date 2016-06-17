@@ -169,10 +169,12 @@ public class Server {
     }
     public void cleanSubscriptionForOtherServer(String serverID,String clientID){
     	if(!ID.equals(serverID)){
+    		LOG.info(String.format("clean subscription for %s", clientID));
     		m_processor.cleanSubscription(clientID);
     	}    	
     }
     public void cleanSubscription(String clientID){
+    	LOG.info(String.format("clean subscription for %s", clientID));
     	m_processor.cleanSubscription(clientID);
     }
 }
