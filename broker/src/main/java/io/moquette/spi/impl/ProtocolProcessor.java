@@ -793,4 +793,7 @@ public class ProtocolProcessor {
     public void cleanSubscription(String clientID){
     	subscriptions.removeForClient(clientID);
     }
+    public void removeSubscription(String topic,String clientID){
+    	subscriptions.removeSubscription(topic, clientID);
+    }
 }

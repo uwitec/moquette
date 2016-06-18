@@ -177,4 +177,7 @@ public class Server {
     	LOG.info(String.format("clean subscription for %s", clientID));
     	m_processor.cleanSubscription(clientID);
     }
+    public void unsubscibe(String topic,String clientID){
+    	m_processor.removeSubscription(topic, clientID);
+    }
 }
