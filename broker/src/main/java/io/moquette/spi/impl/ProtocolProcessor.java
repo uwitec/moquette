@@ -607,7 +607,7 @@ public class ProtocolProcessor {
     public void processPubComp(Channel channel, PubCompMessage msg) {
         String clientID = NettyUtils.clientID(channel);
         int messageID = msg.getMessageID();
-        StoredMessage inflightMsg = m_sessionsStore.getInflightMessage( clientID, messageID );
+//        StoredMessage inflightMsg = m_sessionsStore.getInflightMessage( clientID, messageID );
 
         LOG.debug("\t\tSRV <--PUBCOMP-- SUB processPubComp invoked for clientID {} ad messageID {}", clientID, messageID);
         //once received the PUBCOMP then remove the message from the temp memory
@@ -615,8 +615,8 @@ public class ProtocolProcessor {
         verifyToActivate(clientID, targetSession);
         targetSession.secondPhaseAcknowledged(messageID);
         String username = NettyUtils.userName(channel);
-        String topic = inflightMsg.getTopic();
-        m_interceptor.notifyMessageAcknowledged( new InterceptAcknowledgedMessage(inflightMsg, topic, username) );
+//        String topic = inflightMsg.getTopic();
+//        m_interceptor.notifyMessageAcknowledged( new InterceptAcknowledgedMessage(inflightMsg, topic, username) );
     }
 
     public void processDisconnect(Channel channel) throws InterruptedException {
@@ -792,5 +792,8 @@ public class ProtocolProcessor {
     
     public void cleanSubscription(String clientID){
     	subscriptions.removeForClient(clientID);
+    }
+    public void removeSubscription(String topic,String clientID){
+    	subscriptions.removeSubscription(topic, clientID);
     }
 }
