@@ -41,4 +41,16 @@ public abstract class AbstractInterceptHandler implements InterceptHandler {
     
     @Override
 	public void onMessageAcknowledged(InterceptAcknowledgedMessage msg) {}
+    
+    @Override
+    public void onBeforeUnsubscribeSynchronous(InterceptUnsubscribeMessage msg){}
+    
+    @Override
+    public void onAfterUnsubscribeSynchronous(InterceptUnsubscribeMessage msg){}
+    
+    @Override
+    public void onBeforeSubscribeSynchronous(InterceptSubscribeMessage msg){}
+    
+    @Override
+    public  void onAfterSubscribeSynchronous(InterceptSubscribeMessage msg){}
 }

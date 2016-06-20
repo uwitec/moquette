@@ -41,9 +41,19 @@ public interface Interceptor {
 
     void notifyTopicPublished(PublishMessage msg, String clientID, final String username);
 
+    void notifyBeforeTopicSubscribedSynchronous(Subscription sub, final String username);
+    
+    void notifyAfterTopicSubscribedSynchronous(Subscription sub, final String username);
+    
     void notifyTopicSubscribed(Subscription sub, final String username);
 
+    void notifyBeforeTopicUnsubscribedSynchronous(final String topic, final String clientID, final String username);
+    
+    void notifyAfterTopicUnsubscribedSynchronous(final String topic, final String clientID, final String username);
+    
     void notifyTopicUnsubscribed(String topic, String clientID, final String username);
 
     void notifyMessageAcknowledged(InterceptAcknowledgedMessage msg);
+    
+    
 }
