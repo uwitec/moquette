@@ -43,9 +43,17 @@ public interface InterceptHandler {
     void onDisconnect(InterceptDisconnectMessage msg);
 
     void onPublish(InterceptPublishMessage msg);
-
+    
+    void onBeforeSubscribeSynchronous(InterceptSubscribeMessage msg);
+    
+    void onAfterSubscribeSynchronous(InterceptSubscribeMessage msg);
+    
     void onSubscribe(InterceptSubscribeMessage msg);
 
+    void onBeforeUnsubscribeSynchronous(InterceptUnsubscribeMessage msg);
+    
+    void onAfterUnsubscribeSynchronous(InterceptUnsubscribeMessage msg);
+    
     void onUnsubscribe(InterceptUnsubscribeMessage msg);
     
     void onMessageAcknowledged(InterceptAcknowledgedMessage msg);

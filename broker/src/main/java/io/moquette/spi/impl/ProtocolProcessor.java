@@ -614,7 +614,7 @@ public class ProtocolProcessor {
         ClientSession targetSession = m_sessionsStore.sessionForClient(clientID);
         verifyToActivate(clientID, targetSession);
         targetSession.secondPhaseAcknowledged(messageID);
-        String username = NettyUtils.userName(channel);
+//        String username = NettyUtils.userName(channel);
 //        String topic = inflightMsg.getTopic();
 //        m_interceptor.notifyMessageAcknowledged( new InterceptAcknowledgedMessage(inflightMsg, topic, username) );
     }
@@ -671,6 +671,7 @@ public class ProtocolProcessor {
 
         ClientSession clientSession = m_sessionsStore.sessionForClient(clientID);
         verifyToActivate(clientID, clientSession);
+        String username = NettyUtils.userName(channel);
         for (String topic : topics) {
             boolean validTopic = SubscriptionsStore.validate(topic);
             if (!validTopic) {
@@ -679,10 +680,10 @@ public class ProtocolProcessor {
                 LOG.warn("UNSUBSCRIBE found an invalid topic filter <{}> for clientID <{}>", topic, clientID);
                 return;
             }
-
+            m_interceptor.notifyBeforeTopicUnsubscribedSynchronous(topic, clientID, username);
             subscriptions.removeSubscription(topic, clientID);
             clientSession.unsubscribeFrom(topic);
-            String username = NettyUtils.userName(channel);
+            m_interceptor.notifyAfterTopicUnsubscribedSynchronous(topic, clientID, username);
             m_interceptor.notifyTopicUnsubscribed(topic, clientID, username);
         }
 
@@ -719,6 +720,7 @@ public class ProtocolProcessor {
             boolean valid = clientSession.subscribe(req.topicFilter, newSubscription);
             ackMessage.addType(valid ? qos : AbstractMessage.QOSType.FAILURE);
             if (valid) {
+            	m_interceptor.notifyBeforeTopicSubscribedSynchronous(newSubscription, username);
                 newSubscriptions.add(newSubscription);
             }
         }
@@ -737,6 +739,7 @@ public class ProtocolProcessor {
     }
 
     private boolean subscribeSingleTopic(final Subscription newSubscription, String username) {
+    	
         subscriptions.add(newSubscription.asClientTopicCouple());
 
         //scans retained messages to be published to the new subscription
@@ -759,6 +762,7 @@ public class ProtocolProcessor {
             directSend(targetSession, storedMsg.getTopic(), storedMsg.getQos(), storedMsg.getPayload(), true, packetID);
         }
 
+        m_interceptor.notifyAfterTopicSubscribedSynchronous(newSubscription, username);
         //notify the Observables
         m_interceptor.notifyTopicSubscribed(newSubscription, username);
         return true;

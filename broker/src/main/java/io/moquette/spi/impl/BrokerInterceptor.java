@@ -118,4 +118,32 @@ final class BrokerInterceptor implements Interceptor {
             });
         }
     }
+
+	@Override
+	public void notifyBeforeTopicSubscribedSynchronous(Subscription sub, String username) {
+		 for (final InterceptHandler handler : this.handlers) {
+	         handler.onBeforeSubscribeSynchronous(new InterceptSubscribeMessage(sub, username));
+	     }
+	}
+
+	@Override
+	public void notifyAfterTopicSubscribedSynchronous(Subscription sub, String username) {
+		for (final InterceptHandler handler : this.handlers) {
+	         handler.onAfterSubscribeSynchronous(new InterceptSubscribeMessage(sub, username));
+	    }
+	}
+
+	@Override
+	public void notifyBeforeTopicUnsubscribedSynchronous(final String topic, final String clientID, final String username) {
+		for (final InterceptHandler handler : this.handlers) {
+	         handler.onBeforeUnsubscribeSynchronous(new InterceptUnsubscribeMessage(topic, clientID, username));
+	    }
+	}
+
+	@Override
+	public void notifyAfterTopicUnsubscribedSynchronous(final String topic, final String clientID, final String username) {
+		for (final InterceptHandler handler : this.handlers) {
+	         handler.onAfterUnsubscribeSynchronous(new InterceptUnsubscribeMessage(topic, clientID, username));
+	    }
+	}
 }

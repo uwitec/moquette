@@ -117,6 +117,30 @@ public class ServerSubUnsubBugTest {
 				// TODO Auto-generated method stub
 				
 			}
+
+			@Override
+			public void onBeforeSubscribeSynchronous(InterceptSubscribeMessage msg) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onAfterSubscribeSynchronous(InterceptSubscribeMessage msg) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onBeforeUnsubscribeSynchronous(InterceptUnsubscribeMessage msg) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onAfterUnsubscribeSynchronous(InterceptUnsubscribeMessage msg) {
+				// TODO Auto-generated method stub
+				
+			}
 		});
         m_server.startServer(m_config,hdls);
     }

@@ -68,6 +68,28 @@ public class BrokerInterceptorTest {
 		public void onMessageAcknowledged( InterceptAcknowledgedMessage msg ) {
 			n.set(90);
 		}
+
+		@Override
+		public void onBeforeSubscribeSynchronous(InterceptSubscribeMessage msg) {
+			n.set(100);
+		}
+
+		@Override
+		public void onAfterSubscribeSynchronous(InterceptSubscribeMessage msg) {
+			n.set(110);
+		}
+
+		@Override
+		public void onBeforeUnsubscribeSynchronous(InterceptUnsubscribeMessage msg) {
+			n.set(120);
+			
+		}
+
+		@Override
+		public void onAfterUnsubscribeSynchronous(InterceptUnsubscribeMessage msg) {
+			n.set(130);
+			
+		}
     }
 
     private static final BrokerInterceptor interceptor = new BrokerInterceptor(Arrays.<InterceptHandler>asList(new MockObserver()));
