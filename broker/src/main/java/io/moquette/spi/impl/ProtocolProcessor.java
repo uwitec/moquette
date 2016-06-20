@@ -739,7 +739,6 @@ public class ProtocolProcessor {
     }
 
     private boolean subscribeSingleTopic(final Subscription newSubscription, String username) {
-    	
         subscriptions.add(newSubscription.asClientTopicCouple());
 
         //scans retained messages to be published to the new subscription
