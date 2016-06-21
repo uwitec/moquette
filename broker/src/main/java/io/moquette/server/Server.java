@@ -180,4 +180,7 @@ public class Server {
     public void unsubscibe(String topic,String clientID){
     	m_processor.removeSubscription(topic, clientID);
     }
+    public boolean isStarted(){
+    	return m_initialized;
+    }
 }
