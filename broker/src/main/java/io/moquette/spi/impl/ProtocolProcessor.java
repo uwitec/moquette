@@ -649,13 +649,18 @@ public class ProtocolProcessor {
             LOG.info("Lost connection with client <{}>", clientID);
         }
         //publish the Will message (if any) for the clientID
+        LOG.info("Lost connection with client <{}> 1", clientID);
         if (!sessionStolen && m_willStore.containsKey(clientID)) {
+        	LOG.info("Lost connection with client <{}> 2", clientID);
             WillMessage will = m_willStore.get(clientID);
             forwardPublishWill(will, clientID);
             m_willStore.remove(clientID);
+            LOG.info("Lost connection with client <{}> 3", clientID);
         }
         String username = NettyUtils.userName(channel);
+        LOG.info("Lost connection with client <{}> 4", clientID);
         m_interceptor.notifyClientDisconnected(clientID,username);
+        LOG.info("Lost connection with client <{}> 5", clientID);
     }
 
     /**
