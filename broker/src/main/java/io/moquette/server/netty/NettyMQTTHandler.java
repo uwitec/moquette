@@ -44,6 +44,13 @@ public class NettyMQTTHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object message) {
+    	if(! (message instanceof AbstractMessage)){
+    		if(message instanceof TextWebSocketFrame){
+    			TextWebSocketFrame twsf=(TextWebSocketFrame)message;
+    			LOG.error("error web socket data {}",twsf.text());
+    		}
+    		return ;
+    	}
         AbstractMessage msg = (AbstractMessage) message;
         LOG.info("Received a message of type {}", Utils.msgType2String(msg.getMessageType()));
         try {
